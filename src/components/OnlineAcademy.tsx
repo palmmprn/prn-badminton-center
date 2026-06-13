@@ -30,8 +30,8 @@ interface OnlineAcademyProps {
 const ACADEMY_CURRICULUM: AcademyModule[] = [
   {
     id: "mod-1",
-    title: "1. ทักษะจับไม้และฟุตเวิร์คพื้นฐาน (Grip & Footwork Fundamentals)",
-    titleThai: "การเปลี่ยนสปีดคอร์ทและความคล่องตัว",
+    title: "1. ทักษะจับไม้และฟุตเวิร์คระดับพื้นฐาน (Grip & Footwork Masterclass)",
+    titleThai: "เทคนิคการจับไม้แบบ V-Shape และการก้าวเท้าเคลื่อนที่ความคล่องตัวสูง",
     lessons: [
       {
         id: "les-1-1",
@@ -39,14 +39,14 @@ const ACADEMY_CURRICULUM: AcademyModule[] = [
         titleThai: "เทคนิคการจับไม้หน้ามือและหลังมือแบบ V-Shape",
         duration: "10 mins",
         difficulty: "Beginner",
-        description: "การเรียนรู้มุมจับหน้าไม้เพื่อควบคุมทิศทางลูกหยอดและลูกเคลียร์ได้อย่างสมบูรณ์แบบเพื่อหลีกเลี่ยงการจับไม้รูปหน้ากระทะ",
+        description: "การเรียนรู้มุมจับหน้าไม้เพื่อควบคุมทิศทางลูกหยอดและลูกเคลียร์ได้อย่างสมบูรณ์แบบ หลีกเลี่ยงหน้าไม้รูปหน้ากระทะ",
         descriptionThai: "วีแชป (V-Shape) คือพื้นฐานจุดหมุนของข้อนิ้วโป้งและนิ้วชี้ในการรีดพลังตบและสะบัดข้อมือที่ดีที่สุด",
         youtubeId: "sS6A9Kj54K0",
         points: 100,
         steps: [
           { title: "ขั้นตอนที่ 1: V-Shape Alignment", details: "วางสันไม้แบดมินตันระหว่างนิ้วโป้งและนิ้วชี้ ปรับมุมสัมผัสหลวมระนาบตรง" },
           { title: "ขั้นตอนที่ 2: Backhand Thumb Lever", details: "เลื่อนนิ้วโป้งขึ้นมากดดันแป้นแบนของด้ามจับช่วยเพิ่มแรงดีดลูกหลังมือ" },
-          { title: "ขั้นตอนที่ 3: Finger relaxation", details: "กำด้ามจับด้วยความผ่อนคลาย บีบไม้เฉพาะเสี้ยววินาทีที่หน้าไม้กระทบกับลูก" },
+          { title: "ขั้นตอนที่ 3: Finger Relaxation", details: "กำด้ามจับด้วยความผ่อนคลาย บีบไม้เฉพาะเสี้ยววินาทีที่หน้าไม้กระทบกับลูก" },
         ],
       },
       {
@@ -81,22 +81,46 @@ const ACADEMY_CURRICULUM: AcademyModule[] = [
       },
       {
         id: "qz-1-2",
-        question: "ในการทำ Lunge (ก้าวเท้านำตัวเข้ากระแทกตีลูกหน้าเน็ต) จุดสำคัญในการรักษาความปลอดภัยของหัวเข่าคือข้อใด?",
+        question: "เมื่อต้องการหมุนเปลี่ยนสลับมาตีบวกแฮนด์ทุบหลังมือ (Backhand) ตรรกะนิ้วโป้งควรปรับแรงส่งที่จุดใด?",
+        options: [
+          "เลื่อนนิ้วโป้งขึ้นมาวางบนขอบหนามเฉลียงแคบล่างสุด",
+          "ทาบกดแผ่นนิ้วโป้งด้านหลังลงบนแป้นแบนกว้างด้านตรงข้ามตาข่ายเพื่อสร้างมุม Leverage สปริงตัวส่ง",
+          "กำขยำรวมนิ้วทั้งห้าให้เกร็งแน่นที่ด้ามปลอก",
+          "หงายท่อนแขนแบออกเพื่อหักข้อมือลงด้านข้าง",
+        ],
+        correctIndex: 1,
+        explanation: "การนำวิถีหน้าแผ่นเรียบนิ้วโป้งมากดที่ส่วนแบนกว้าง (Bevel/Flat Grip) ช่วยเพิ่มพาวเวอร์แรงงัดและแรงดีดสะบัดของข้อมือหลังมือได้อย่างมีพลังที่สุด",
+      },
+      {
+        id: "qz-1-3",
+        question: "ในการทำ Lunge (ก้าวเท้านำตัวเข้ากระแทกกวาดตีลูกหน้าเน็ต) จุดสำคัญในการรักษาความปลอดภัยของหัวเข่าคือข้อใด?",
         options: [
           "เหยียดงอเข่าให้สุดเลยปลายเท้ายิ่งยืดยาวข้ามแดนยิ่งดี",
           "งอเชิดเท้านำขนานยึดเข่าให้มุมต้นขาทำมุม 90 องศา และเข่าไม่ส่งน้ำหนักเกินแนวปลายเท้า",
           "ยืนสองขากว้างเกร็งก้าวตรงไม่ยอมงอข้อเท้า",
-          "ให้เข้าปรีสไลด์เอาน้ำหนักลื่นไหลทั้งหมดลงไปที่หัวเข่าซ้าย",
+          "ให้เข่าบิดปรีสไลด์เอาน้ำหนักลื่นไหลทั้งหมดลงไปที่หัวเข่าด้านข้าง",
         ],
         correctIndex: 1,
         explanation: "การรักษาทิศทางเข่าไม่ให้เลยปลายเท้าและรักษาข้อเข่าขวาไว้ที่ประมาณ 90 องศา ป้องกันการบาดเจ็บรุนแรงของเส้นเอ็นกระดูกข้อเข่า",
+      },
+      {
+        id: "qz-1-4",
+        question: "เมื่อตีลูกหยอดหน้าเน็ตเสร็จเรียบร้อยแล้ว ในมุมสเต็ปฟุตเวิร์ค ลำดับขั้นต่อไปคือกิจกรรมใด?",
+        options: [
+          "ยืนกระหยิ่มรอดูผลลัพธ์ว่าลูกเข้าหรือออกเน็ต",
+          "ดันส้นเท้าสปริงกลับมาที่ 'จุดกึ่งกลางคอร์ท (Center Frame)' เพื่อเตรียมพร้อมตีมุมรอบคอร์ทถัดไป",
+          "ก้าวไขว้หลังถอยพุ่งหลังคอร์ทมุมเฉียงซ้ายทันที",
+          "ย่อตกลงคลานราบเพื่อขนาบต่ำข้างเส้นเน็ตคอร์ท",
+        ],
+        correctIndex: 1,
+        explanation: "การ Recovery กลับจุดกึ่งกลางคือหัวใจวิชาฟุตเวิร์คเพื่อรับมือแต้มถัดไปจากคู่เล่นที่อาจหยอดซ้ำหรือโยนเคลียร์สอยหลัง",
       },
     ],
   },
   {
     id: "mod-2",
-    title: "2. การเล่นลูกหยอดและพุชลึก (Precision Drops & Clears)",
-    titleThai: "เทคนิคการตัดทิศทางและกดดันแดนหลัง",
+    title: "2. ลูกหยอดเฉือนตาข่ายและเคลียร์คอร์ทสูง (Precision Drop Shots & Clears)",
+    titleThai: "เทคนิคการตัดลูกหยอดวิถีสปินเลียดเน็ตและการโยนเคลียร์ขึงแดนหลัง",
     lessons: [
       {
         id: "les-2-1",
@@ -110,8 +134,24 @@ const ACADEMY_CURRICULUM: AcademyModule[] = [
         points: 150,
         steps: [
           { title: "ขั้นตอนที่ 1: Same Setup As Smash", details: "ตั้งหลักโยนไหล่และเหยียดมือซ้ายขึ้นทำท่าตบลูกเรียกร้องจุดสังเกตจากคู่ต่อสู้" },
-          { title: "ขั้นตอนที่ 2: Soft Slicing angle", details: "จังหวะส่งไม้ให้หมุนเอียงหน้าไม้ 30 องศาตัดหั่นแฉลบข้างขอบหัวลูกแทนการปะทะตรง" },
-          { title: "ขั้นตอน&nbsp;3: Net Rolling follow-through", details: "หยุดสะบัดข้อมือเบรกแรงผลักช่วยให้ลูกเฉียดเน็ตแนวนอนตกทันที" },
+          { title: "ขั้นตอนที่ 2: Soft Slicing Angle", details: "จังหวะส่งไม้ให้หมุนเอียงหน้าไม้ 30 องศาตัดหั่นแฉลบข้างขอบหัวลูกแทนการปะทะตรง" },
+          { title: "ขั้นตอนที่ 3: Net Rolling Follow-Through", details: "หยุดสะบัดข้อมือเบรกแรงผลักช่วยให้ลูกเฉียดเน็ตแนวนอนตกทันที" },
+        ],
+      },
+      {
+        id: "les-2-2",
+        title: "Overhead Defensive Clear",
+        titleThai: "ลูกโยนสูงเคลียร์ข้ามหลังกดดันแดนหลัง",
+        duration: "12 mins",
+        difficulty: "Intermediate",
+        description: "การตีลูกข้ามศีรษะให้โด่งสูงสุดและเหหันดิ่งลงมาบนเส้นฐานหลังคอร์ท เพื่อเปิดโอกาสให้เราตั้งรับหรือบีบคู่ต่อสู้",
+        descriptionThai: "การสร้างระยะวิถีดิ่งจำกัดสปีดฝ่ายรุกของศัตรูให้ล่าถอย",
+        youtubeId: "q_7tD_0uVig",
+        points: 100,
+        steps: [
+          { title: "ขั้นตอนที่ 1: Deep Backpedal Setup", details: "สวมฟุตเวิร์คถอยหลังพิงตัว คอยรับใต้พิกัดลูกพร้อมเอี้ยวตัว 45 องศา" },
+          { title: "ขั้นตอนที่ 2: Full Extension Contact", details: "เกร็งบิดผลักส่งแรงข้อศอกเหยียดแขนขวาสูง ตีสัมผัสปะทะตรงเต็มหน้าแร็กเก็ต" },
+          { title: "ขั้นตอนที่ 3: Complete Arm Follow", details: "ตวัดวาดมุมไม้ผ่อนทิศทางปลายไม้ลงข้างซีกตัวเพื่อความปลอดภัยของไหล่" },
         ],
       },
     ],
@@ -128,17 +168,53 @@ const ACADEMY_CURRICULUM: AcademyModule[] = [
         correctIndex: 1,
         explanation: "การทำ Deception (หลอกล่อ) ด้วยการใช้วงสวิงท่าเดียวกันทำให้คู่ต่อสู้จับจังหวะวิถีไม่ได้ และถอยคอร์ทเพื่อคอยรับสแมช",
       },
+      {
+        id: "qz-2-2",
+        question: "วิธีกระทบแรงสะกดหน้าไม้สัมผัสประเภท Slicing Drop ให้ได้ผลวิถีลูกเลียดตกข้ามทันที?",
+        options: [
+          "สัมผัสปะทะหน้าเต็มส่งแรงสปีด 100% ตรงเข้าหาลูกดิ่งลง",
+          "หมุนขัดทำมุมแปรผันเอียง 30-45 องศาเฉือนกวาดปีกหัวลูกขนไก่แหลบตรงข้าง",
+          "ดึงกวาดไม้ถอยหลังขณะปล่อยให้หัวขนชนไม้เอง",
+          "ตบหักสันแร็กเก็ตด้านเหล็กลงฟันตรง",
+        ],
+        correctIndex: 1,
+        explanation: "การเอียงสไลด์เฉือนหน้าไม้กับข้างขนนกและหัวคอร์ก ช่วยตัดแรงสะกดลดความเร็วและสร้างรอบหมุนสปินทำให้วิถีลูกแหวกลาดเฉียดตาข่ายได้ยอดเยี่ยม",
+      },
+      {
+        id: "qz-2-3",
+        question: "ลักษณะวิถีลูกโยนสูงเซฟเคลียร์ (High Overhead Clear) ที่มีประสิทธิภาพสูงสุดคืออย่างไร?",
+        options: [
+          "พุ่งร่อนต่ำขนานทางยาวขนานกับขอบคอร์ทสะท้อนตาข่าย",
+          "ส่งลูกโด่งข้ามโค้งวาดฟองอากาศสูงลอยลึกตกเกือบเป็นมุมแนวดิ่งลงเส้นหลังสุดของเขตคู่แข่ง",
+          "ส่งหมุนซิกแซกในแนวแดนกลางตาข่าย",
+          "สอยตรงให้ลูกสบตาข่ายแล้วตกฝั่งตนเองเพื่อหยอดผืนหญ้า",
+        ],
+        correctIndex: 1,
+        explanation: "ลูกเคลียร์ที่ดีต้องมีระดับความสูงและลึกมากพอบังคับให้คู่ต่อสู้ต้องถอยหลังไกลสุด และจำใจเล่นลูกแดนหลังพร้อมทั้งเพิ่มเวลาให้เราจัดท่าพร้อมรับ",
+      },
+      {
+        id: "qz-2-4",
+        question: "การกระจายพาวเวอร์ร่างกายเพื่อช่วยซับพอร์ตแรงเหวี่ยงตีลูกเคลียร์ (Defensive Clear) เริ่มต้นโอนถ่ายจากบริเวณใดของแผ่นตัว?",
+        options: [
+          "ใช้แรงจลนศาสตร์ข้อนิ้วก้อยกำเฉือนแรง",
+          "ส่งถ่ายน้ำหนักตัวโดยสปริงสะโพกและแรงเหยียดส่งเอี้ยวขาออกจากไหล่และหลังบิด",
+          "เอียงข้างใช้แค่กำลังข้อมือด้านล่างนิ่งๆ คีบไม้",
+          "งอโค้งลำตัวแอ่งไปด้านหน้าบิดลำไส้เกร็งหัวเข่า",
+        ],
+        correctIndex: 1,
+        explanation: "การส่งน้ำหนักสลับจากสะโพกหลังหมุนโผล่มาหน้าตัว เป็นตัวกระตุ้นสิริพาวเวอร์ที่ทำให้เกิดวงเหวี่ยงแขนสูงเบาสบายแต่วิถีลูกเคลียร์ลอยตกลึกเกลี้ยงได้ง่ายดาย",
+      },
     ],
   },
   {
     id: "mod-3",
-    title: "3. ลูกตบทรงอิทธิพลระดับมาสเตอร์ (Powerful Smash Masterclass)",
-    titleThai: "ระเบิดความเร็วลูกบดขยี้แนวรับ",
+    title: "3. ลูกตบสแมชทรงพลังระดับโปร (Explosive Smash Power & Jumps)",
+    titleThai: "สายโซ่จลนศาสตร์ระเบิดพลังทุบทำลายล้างและการคุมไทมิ่งกระโดดตบสแมช",
     lessons: [
       {
         id: "les-3-1",
         title: "Kinetic Chain Power Transfer",
-        titleThai: "การต่อยอดสายโซ่จุลภาพถีบสะโพกส่งแรงตบถล่มทลาย",
+        titleThai: "การต่อยอดสายโซ่จลนศาสตร์บิดสะโพกส่งแรงตบตระหง่าน",
         duration: "20 mins",
         difficulty: "Advanced",
         description: "เรียนรู้พิกัดสวิงโถมน้ำหนักส่งถ่ายน้ำหนักลำตัวจาก ปลายเท้า-สะโพก-หัวไหล่ และข้อมือ เพื่อรีดสปีดลูกตบทะลุ 350+ km/h",
@@ -148,7 +224,23 @@ const ACADEMY_CURRICULUM: AcademyModule[] = [
         steps: [
           { title: "ขั้นตอนที่ 1: Body Coiling Setup", details: "ยืนด้านข้างบิดหัวไหล่ขวาไปข้างหลัง บิดสะโพกเปิดหน้าอกรับพลังสะสมคล้ายคันธนู" },
           { title: "ขั้นตอนที่ 2: Hip Rotation Core Drive", details: "หมุนสะโพกสวนทางอย่างรุนแรง โยนไหล่ขวาเหยียดเข้าหาจุดตีก่อนฟาด" },
-          { title: "ขั้นตอนที่ 3: Forearm pronation", details: "คว่ำปลายท่อนแขนสะบัดสแน็ปข้อมือวินาทีสุดท้ายเพื่อให้จุดตกพุ่งทะลุดิ่งลงล่างสุด" },
+          { title: "ขั้นตอนที่ 3: Forearm Pronation", details: "คว่ำปลายท่อนแขนสะบัดสแน็ปข้อมือวินาทีสุดท้ายเพื่อให้จุดตกพุ่งทะลุดิ่งลงล่างสุด" },
+        ],
+      },
+      {
+        id: "les-3-2",
+        title: "Badminton Jump Smash Timing",
+        titleThai: "จังหวะกระโดดตบและความสูงจุดปะทะกลางอากาศ",
+        duration: "18 mins",
+        difficulty: "Advanced",
+        description: "เคล็ดลับการคำนวณไทมิ่งแรงกระโดดถีบตัวระเบิดพลังกลางเวหา เพื่อจับมุมจุดกระทบลูกสูงปะทะทำมุมลาดชัดฉีกแนวรับศัตรู",
+        descriptionThai: "การประสานพลังแกลลอปฟุตเวิร์ครวมศูนย์เข้าสู่ลูกกระโดดตบ",
+        youtubeId: "EIA_zmsVf8A",
+        points: 200,
+        steps: [
+          { title: "ขั้นตอนที่ 1: Split-Step Explosive Push", details: "กดขอบสะโพกต่ำแล้วใช้แรงข้อม้าสลัดถีบตัวถลันลอยสูงขึ้นแนวดิ่งฉับพลัน" },
+          { title: "ขั้นตอนที่ 2: Backarch & Arm Cocking", details: "นิ่งเกร็งแอ่นแผ่นหลังรักษาสมดุลกลางอากาศ จัดท่าจับด้ามกระชับรับองศาเตรียมสับ" },
+          { title: "ขั้นตอนที่ 3: Steep Snap & Soft Landing", details: "สะบัดทุบตีตัดองศากดลงจุดหน้าหัวตัว พร้อมลงสัมผัสด้วยอุ้งเท้าซ้ายขวาอย่างสมดุลถนอมเข่า" },
         ],
       },
     ],
@@ -164,6 +256,220 @@ const ACADEMY_CURRICULUM: AcademyModule[] = [
         ],
         correctIndex: 1,
         explanation: "การส่งต่อแรงสืบเนื่องจากกล้ามเนื้อมัดใหญ่ของท่อนขาและสะโพกไล่ลำดับส่งต่อมายังไหล่ แขน และลงไปสะบัดสแนปหน้าไม้จังหวะสุดท้ายเพิ่มความเร็วลูกตบแบบยกกำลังสอง",
+      },
+      {
+        id: "qz-3-2",
+        question: "เทคนิค 'Forearm Pronation' ในการลุยตบหมายความว่ากิจกรรมทำมุมแขนแบบใด?",
+        options: [
+          "การยกข้อศอกดัดคงรูปแล้วบิดหลังมือเข้าสู่แดนเตะข้างหลัง",
+          "การปลดบิดคลายกระดูกแขนด้านล่างสะบัดสแนปหน้าไม้เพื่อบิดคว่ำหน้าเหลี่ยมกดลงอย่างเร็วแรง",
+          "การแกว่งไหล่ออกด้านข้างค้างแขนเรียบ",
+          "การกดงอกระดูกข้อมือเกร็งส้นทื่อๆ กวัดแกว่งแนวราบ",
+        ],
+        correctIndex: 1,
+        explanation: "Pronation คือการบิดสะบัดแขนท่อนนอกเข้าด้านใน ช่วยเปลี่ยนระนาบหมุนส่งหน้าไม้ให้พุ่งสะเทือนอย่างรุนแรง ตะบันลงคอร์ทเกร็งแรงสแนปอย่างถูกสรีรวิทยาป้องกันเอ็นอักเสบ",
+      },
+      {
+        id: "qz-3-3",
+        question: "วัตถุประสงค์ตามหลักยุทธศาสตร์หลักของผู้เล่นในการเลือกใช้วิธี 'Jump Smash' แทนการยืนตบตรงทั่วไปคือข้อใด?",
+        options: [
+          "เพื่อเลียนแบบความงดงามทวงท่่าถ่ายรูปแบบสัญญะ",
+          "เพื่อแย่งจังหวะตีความสูงรวดเร็วกว่า และบวกกับพาวเวอร์แรงเหวี่ยงตัวกลางอากาศเร่งแรงดิ่งชันเฉียงจุดตกที่เฉียบขาด",
+          "เพื่อหลบการเกร็งกล้ามเนื้อสะโพก",
+          "ทำให้ลูกมีรอบดีดกลับไปเด้งกำแพงสนามอัตโนมัติ",
+        ],
+        correctIndex: 1,
+        explanation: "กระโดดตบช่วยยกระดับความสูงในการปะทะ ทำให้สามารถทุบสแมชมุมที่ลาดชันขึ้น บีบให้แนวป้องกันรับของคู่ต่อสู้โดนโจมตีที่กดบีบจี้ตัวตอบรับยากที่สุด",
+      },
+      {
+        id: "qz-3-4",
+        question: "พิกัดปะทะทิศทางของลูกขนไก่ที่ถูกต้องลื่นไหลที่สุด ณ ขณะตีตบ Smash คือขนาบบริเวณใด?",
+        options: [
+          "ตีหลังพิกัดกระหม่อมศีรษะขณะลำตัวแอ่นหงายสุดฤทธิ์",
+          "ตีหน้าพิกัดหน้าผาก/ไหล่ ระดับค่อนไปทางด้านหน้าลำตัวเยื้องเฉียงประมาณครึ่งฟุตเพื่อกดไหล่ส่ง",
+          "ระนาบคราบหูซ้ายล่างขนานข้อศอก",
+          "ด้านข้างเฉียงกระเดียดเอวซ้ายขวาด้านหลัง",
+        ],
+        correctIndex: 1,
+        explanation: "การปะทะลูกข้างหน้าตัวเล็กน้อยจะช่วยให้มุมส่งแรงจากวงคว่ำไหล่ ข้อศอก และพาวเวอร์ลำตัวสะสมระเบิดออกหน้าไม้เข้าหาลูกสะท้อนได้อย่างเบ็ดเสร็จมีน้ำหนัก",
+      },
+    ],
+  },
+  {
+    id: "mod-4",
+    title: "4. ทักษะหยอดปั่นหน้าเน็ตและการรับลูกตบ (Tight Spin Net Shots & Defense)",
+    titleThai: "การหยอดม้วนหน้าเน็ตเลียดขอบและรูปแบบตั้งรับสกัดแรงตบสแมชอย่างแม่นยำ",
+    lessons: [
+      {
+        id: "les-4-1",
+        title: "Tight Rolling Spin Net Shot",
+        titleThai: "เทคนิคการหยอดปั่นสปินม้วนเลียดสะกิดเน็ต",
+        duration: "14 mins",
+        difficulty: "Intermediate",
+        description: "ส่องความลับของการเอียงสัมผัสลากหัวลูกขนไก่เบาๆ แบบสะบัดข้อมือแบรนด์ เพื่อสร้างรอบสปินเกลียวม้วนเลียดเส้นเน็ตข้ามยาก",
+        descriptionThai: "อาวุธหน้าตาข่ายที่คู่แข่งรับได้ยากที่สุดเพราะหน้าคอร์กสั่นคลอนแวบวาบ",
+        youtubeId: "8Yk6BvE_X88",
+        points: 150,
+        steps: [
+          { title: "ขั้นตอนที่ 1: Deep Net Approach", details: "สไลด์เข้าใต้จุดวิถีขนไก่ชิดขอบตาข่าย โดยหน้าไม้ขนานแนวด้านราบ" },
+          { title: "ขั้นตอนที่ 2: Lateral Brush Cushion", details: "ปาดช้อนหันเอียงหน้าไม้ปาดลากผิวด้านข้างใต้หัวคอร์กขนไก่เบาๆ เหมือนทาสีกวาด" },
+          { title: "ขั้นตอนที่ 3: Complete Loose Release", details: "ปล่อยผ่อนความเหนียวของมือจับ ให้ลูกส่ายม้วนตีเกลียวพับหุบข้ามไปเบาๆ" },
+        ],
+      },
+      {
+        id: "les-4-2",
+        title: "Smash Defense Masterclass",
+        titleThai: "เทคนิคบล็อกรองรับสกัดพลังตบ",
+        duration: "16 mins",
+        difficulty: "Intermediate",
+        description: "หลักสูตรเคล็ดรู้วิธีคลายแรงควงข้อมือเพื่อตั้งรับลูกสแมชกระแทกส่ง พร้อมผ่อนถ่ายน้ำหนักสัมผัสเด้งกลับหยอดหน้าเน็ตเพื่อเปลี่ยนเกมรุก",
+        descriptionThai: "เปลี่ยนพลังรุกความไวสูงให้หมดพิษสงกลายเป็นลูกหยอดรุกคืนเบา",
+        youtubeId: "pXl8Tsz96Xw",
+        points: 150,
+        steps: [
+          { title: "ขั้นตอนที่ 1: Low Stance Ready", details: "ย่อเข่าเกร็งสะโพกเตี้ยต่ำ ถือแร็กเก็ตระดับแผงอกด้านหน้างอนิ้วเล็กน้อยดักคอย" },
+          { title: "ขั้นตอนที่ 2: Loose Wrist Deflection", details: "วินาทีปะทะลูกตบ คลายข้อมือผ่อนกลับถอยเล็กน้อย (Absorption) ซับแรงฟาด" },
+          { title: "ขั้นตอนที่ 3: Touch Angle Placement", details: "กำหนดมุมกดซ้ายขวาเพื่อส่งลูกกลับไปตกรอบข้างเน็ตที่ไร้ผู้ยืนคุ้มกัน" },
+        ],
+      },
+    ],
+    quiz: [
+      {
+        id: "qz-4-1",
+        question: "หลักการทำปฏิกิริยากระทบไม้แบบใดสร้างรอบสปินเกลียวนอนเลียดหน้าเน็ตในเคล็ดวิชา 'Spinning Net Shot'?",
+        options: [
+          "ทุบกวาดเต็มหน้าเหล็กดันทะลึ่งไปข้างบนตรงดิ่ง",
+          "หงายเอียงหน้าไม้ปาดเฉือนรอบวงกลมข้างใต้หัวคอร์กลำตัวลูก เพื่อสลัดส่งวิถีรอบม้วนเหวี่ยง",
+          "ดันเฉียงหน้างัดปลายสะโบกสแมชดิ่งปัก",
+          "ทื่อถอยหลบไม่กล้าสัมผัสกระโดปักโหม",
+        ],
+        correctIndex: 1,
+        explanation: "การเฉือนปาดกวาดเบาๆ (Brushing/Slicing touch) ใต้แคนดี้ลูกขนไก่ขณะสัมผัส จะทำให้หัวลูกเกิดแรงสปินควงเกลียวข้ามเน็ตแบบขาดสมดุล ซึ่งประเวศจังหวะปัดให้ขัดขวางการตะครุบรุนแรง",
+      },
+      {
+        id: "qz-4-2",
+        question: "เมื่อคู่เล่นแอบปาดลูกสปินต่ำเฉี่ยวเส้นเน็ตมาตกฝั่งเรา ยุทธศาสตร์รุกรวดเร็วคือเรื่องใด?",
+        options: [
+          "ปล่อยตกรอจับรอบสองหลังกระดอน",
+          "รุกสไลปเข้าคว้าระดับความสูง (High Point Support) สูงเหนือน้ำหนักคัดและสไลสปินบล็อกสวนฉับพลัน",
+          "เขยิบวิ่งอ้อมไปหลังคอร์ทเพื่อโอบกอดรับลูกหลังมือ",
+          "โยนแร็กเก็ตลอยข้ามเขตเน็ตหวังชนลูกให้พุ่งเอง",
+        ],
+        correctIndex: 1,
+        explanation: "การเข้าถึงจุดตีกระทบระดับสูงสุดเหนือตาข่าย (High Contact Point) บังคับสยบคู่แข่งทันทีเพื่อเล่นเกมรุกตัดชอยส์หน้าเน็ตให้เราไม่ปะทะเสียแต้ม",
+      },
+      {
+        id: "qz-4-3",
+        question: "วิธีการควบคุมมุมและแรงสะพัดข้อมือขณะถือรับตั้งสกัดกั้นบล็อกลูกตบกึ่งกลาง (Soft Defense Block)?",
+        options: [
+          "เหวี่ยงกระแทกไม้ฟาดกลับสุดกำลังต้นแขนแบบเต็มหน้าตบ",
+          "ถือหน้าไม้ค้างทรงมั่นคง คลายบีบนิ้วผ่อนแรงเล็กน้อยซับพอร์ตแรงกระแทก (Absorb) ย้อยเบาเหนือเน็ต",
+          "พับแร็กเก็ตปล่อยให้ทุบโดนแขนพยุงไหล่",
+          "สะบัดแว้งพัดขึ้นฟ้าโด่งร่อนกลางใบคอร์ท",
+        ],
+        correctIndex: 1,
+        explanation: "การผ่อนข้อหรือซับแรง (Absorption) โดยถือสมาธิจับข้อมือผ่อนตามแรงเบาๆ จะช่วยซับความเร็วลูกกระแทกลงได้อย่างดี ม้วนตกลงเป็นหยอดหน้าคอร์ทอีกปีกได้อย่างสมบูรณ์",
+      },
+      {
+        id: "qz-4-4",
+        question: "ท่าย่อย่อตัวและจุดศูนย์ถ่วงแผงรับการตบอย่างถูกต้องตามแผนลากรับบุกของแชมป์เปี้ยน?",
+        options: [
+          "ยืนเข่าเหยียดตึงแนบขาชิดหน้าตัวหงายใบไหล่เปราะร้าว",
+          "แยกกางแนวส้นเท้าเข่ากว้างกว่าปกติตัวย่อสะโพกเตี้ยต่ำ เอียงแผงอกมาหน้ารับระดับแร็กเก็ตระดับสายตา",
+          "เอนตัวนอนห้อยก้นพิงผนังตาขาย",
+          "เหน็บหนีบมือชิดลอยระดับพิกัดหลังเอวเฉียง",
+        ],
+        correctIndex: 1,
+        explanation: "การลดจุดศูนย์ถ่วง (Low Center of Gravity) และการขยายระยะเท้าบีบให้ปฏิกิริยาเซฟข้อศอกและท่อนแขนด้านล่างขยับรับสกัดได้กว้างรวดเร็วและนิ่งขึ้น",
+      },
+    ],
+  },
+  {
+    id: "mod-5",
+    title: "5. การเคลื่อนที่และการยืนคู่อย่างอัจฉริยะ (Doubles Strategy & Rotation)",
+    titleThai: "แทกติกตำแหน่งยืนคู่ทีมและหลักกลยุทธ์หมุนเวียนสลับเปลี่ยนคลุมคอร์ทลื่นไหล",
+    lessons: [
+      {
+        id: "les-5-1",
+        title: "Doubles Attacking & Defensive Formations",
+        titleThai: "รูปแบบแกนบุกแนวราบและตั้งรับคู่ทีมหน้า-หลัง/ซ้าย-ขวา",
+        duration: "15 mins",
+        difficulty: "Advanced",
+        description: "เรียนรู้แนวคิดหลักทางยุทธศาสตร์ของการประกบยืนคู่ วิธีสลับแผนขึ้นหน้าหลังคู่เพื่อถล่มบุก และสับยืนขนานข้างซ้ายขวาเพื่อคุ้มกันการตบเฉือน",
+        descriptionThai: "การสื่อสารสายตาผ่านแผนภาพพื้นที่และการหมุนเวียนคุ้มคอร์ทไร้รอยต่อ",
+        youtubeId: "_U9_LPhqlyU",
+        points: 200,
+        steps: [
+          { title: "ขั้นตอนที่ 1: Mid-court Intercept Guard", details: "เมื่อลูกอยู่วิถีบุกคอร์ส ให้ผู้เล่นแดนหน้าเข้ายืนตัดกลางข่มคู่วิถีคราดฝั่งตรงข้าม" },
+          { title: "ขั้นตอนที่ 2: Front-Back Attack Shape", details: "ผู้เล่นคนหลังตบกระจายแรง ผู้เล่นแดนหน้าถือแร็กเก็ตลอยสูงเก็บลูกตอบรับยอดเน็ต" },
+          { title: "ขั้นตอนที่ 3: Side-by-Side Secure Wall", details: "เมื่อต้องเปลี่ยนเป็นฝ่ายรับ โอนกลับสับยืนแนวดินเหนียวซ้ายขวายางพาราช่วยกันอุ้มคอร์ทกว้าง" },
+        ],
+      },
+      {
+        id: "les-5-2",
+        title: "Speed Rotation Tactics & Intercepts",
+        titleThai: "กลยุทธ์การหมุนตำแหน่งไดนามิกว่องไวและการอ่านสกัดลูกพุชไดรฟ์",
+        duration: "16 mins",
+        difficulty: "Advanced",
+        description: "เคล็ดวิธีการขยับถอยสวิงหมุน (Rotation Clockwise Style) ของคู่หูกีฬาแบดมินตันเพื่อประดิษฐ์สเปซ ป้องกันเหตุการณ์ชนแร็กเก็ตคาใบหูหรือเหยียบข้อเท้าพวกเดียวกัน",
+        descriptionThai: "ระบบเคลื่อนที่กวนสมดุลสนามด้วยประสาทการไหลลื่นไหล",
+        youtubeId: "Z90-Bv7_2i8",
+        points: 200,
+        steps: [
+          { title: "ขั้นตอนที่ 1: Baseline Drop Intercept Trigger", details: "เมื่อเพื่อนร่วมทีมหลังพ่นงัดตัดเฉือนสลัด (Drop) รีบพุ่งหน้าประกบแดนซ้ายขวาค้ำ" },
+          { title: "ขั้นตอนที่ 2: Backhand Cover Swapping", details: "หมุนสลัดทางทวนเข็มตามแกนแนวระนาบเพื่อหมุนสลับจุดคลุมคอร์ทอัตโนมัติ" },
+          { title: "ขั้นตอนที่ 3: Racquet Rise Command", details: "ยกไหล่ไม้ตั้งตรงสูงระดับเหนือตาข่ายเป็นกริชสกัดลูกพุ่งตัดไดรฟ์ตรงกลางสนาม" },
+        ],
+      },
+    ],
+    quiz: [
+      {
+        id: "qz-5-1",
+        question: "ในการแข่งขันปะทะทีมคู่ แผนภาพการยืนพื้นที่ประเภทใดใช้สำหรับจุดประสงค์เพื่อ 'เล่นเกมรุกกดดัน (Attack Form)' และ 'คัดตั้งรับการต้านทาน (Defend Form)' ลำดับหลัก?",
+        options: [
+          "บุกบีบยืน แนวนอนประกบซ้ายขวากลวงเน็ต / รับบีบยืน แนวชิดมุมเฉลียง",
+          "บุกประกบยืนวิถีหน้าหน้าหลัง (Front-and-Back) / รับเปลี่ยนสลับขยับขวางระนาบซ้ายขวาประกบตาราว (Side-by-Side)",
+          "ไม่มีแผนกำหนดให้วิ่งชนกันแบบมั่วกระจัดกระจาย",
+          "ยืนรวมสองคู่กระโดดปักที่ขอบแนวรั้วคนละด้านหลังเส้นจำกัดคอร์ท",
+        ],
+        correctIndex: 1,
+        explanation: "ยืนหน้า-หลังทำหน้าที่ส่งเสริมบอมบ์ตบตระหง่านและคามแย่งตีตะครุบหน้าจอ (Offense) ส่วนยืนซ้าย-ขวาขัดขวางแรงตบนอนเลียดปกป้องอาณาเขตทางราบเกลี้ยงคอร์ท (Defense)",
+      },
+      {
+        id: "qz-5-2",
+        question: "เมื่อคู่เล่นแร็ตหน้าสุดแดนหน้างัดลูกขึ้นสูงโด่งสะกดหลังเน็ตไปคอร์สคู่อริ ตัวผู้เล่นแดนหลังคู่ทีมควรถือสแตนด์ปรับแผนอย่างไรเพื่อสกัดกั้น?",
+        options: [
+          "ถอยก้าวปรีสเต็ปมาเกลือกยืนคราบหลังพิงเส้นเดี่ยวตลึงนิ่ง",
+          "รีบสลับทิศทางหมุนคลุมมาขยับยืนปีกด้านซ้ายขวาประกบเพื่อนร่วมสยบรับแนวตั้ง (Side-by-Side Defense)",
+          "ถลันวิ่งพุ่งซ้ายขวาหน้าชิดเน็ตด้วยกันแย่งตำแหน่งหน้ากวาดหยอด",
+          "สติขาดลอยโยนไม้หลบหนีออกจากพื้นที่สตรีมเมอร์",
+        ],
+        correctIndex: 1,
+        explanation: "เมื่อเราตัดงัดยาวเซฟโด่งจำต้องโอนแผนมาตั้งกำแพงรับสแมชคู่แข่งทันที การประกบซ้าย-ขวาคือการกระจายคนละครึ่งแนวกว้างเพื่อปกป้องเส้นขอบตบขนานสนาม",
+      },
+      {
+        id: "qz-5-3",
+        question: "ลูกลอบไดรฟ์เรียดเส้นกลาง (Flat Mid-court Drive) ในการต่อสู้คู่ผสม วิธีรับหักเหลี่ยมที่มีความสำคัญที่สุดของผบ.เน็ตแดนหน้าสุด?",
+        options: [
+          "กดหัวไม้ชี้ดินดักรองแถวหน้าขาขวา",
+          "ชูหัวไม้แร็กเก็ตลอยโด่งประจบระดับแนวสะสะตึงเหนือเฉิดตาข่าย (Active Racquet) ดักบล็อกโอบกวัดลูกกลางวิถีทันที",
+          "ปล่อยให้ความเร็วลูกผ่านแกนหูถอยลึกให้เพื่อนทุบรับรอบหลัง",
+          "หันวิ่งหันหลังจากตาข่ายหันไปเชียร์คู่หลังปะทะ",
+        ],
+        correctIndex: 1,
+        explanation: "การยกแร็กเก็ตสูงคาไว้หน้าแดนทีมคู่ (Active Court Racquet Setup) ยอดขั้วสายตา ช่วยแย่งเวลาการสกัดทุบสะท้อนแตะปาดลูกที่คู่เล่นเด้งตอบข้ามเส้นตาข่ายพุ่งทลายได้อย่างรวดเร็วหวังคะแนนทันที",
+      },
+      {
+        id: "qz-5-4",
+        question: "ทำวิธีสไตล์แบบใดช่วยหลีกเลี่ยงเหตุการณ์ชนปะทะไม้แร็กเก็ตหรือกระโดดเหยียบหลังเหยียบขาเพื่อนร่วมสนาม (Partner Clashing)?",
+        options: [
+          "ตั้งวิสัยกติกาว่าจะสลับวิ่งตามความพึงพอใจว่าใครส่งเสียงได้ร้องดังกว่า",
+          "การเข้าใจการหมุนตำแหน่งระบบโรเทชั่นเชิงวงกลม (Dynamic Circular Rotation) และกติกาประสานสายตาอ่านทิศตัวแทนลูกที่ปะทะ",
+          "ให้จัดยืนคนหนึ่งนั่งเกร็งแถวขอบประตูปัดคอยเชียร์",
+          "หมุนไม้ทวนเข็มวิหาร 3 รอบพร้อมคลานสวมเข่ากอดเพื่อนคู่คอร์ท",
+        ],
+        correctIndex: 1,
+        explanation: "การหมุนเวียนแบบไหลไดนามิกลื่นไหลประสานสายตา (เช่น ดรอปแล้วเข้าประกบเน็ตเพื่อสับขยับเพื่อนเวียนคัดคุมสนามหลัง) เคลียร์ช่องความว่าง ปลุกศักยภาพความเร็วนักสู้อภิมหาแชมป์",
       },
     ],
   },
@@ -181,9 +487,37 @@ export default function OnlineAcademy({ user, onChangeUser }: OnlineAcademyProps
   
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [useYouTube, setUseYouTube] = useState(false);
+  const [useYouTube, setUseYouTube] = useState(true);
+  const [customYoutubeLinkInput, setCustomYoutubeLinkInput] = useState("");
+  const [customYoutubeIds, setCustomYoutubeIds] = useState<{ [lessonId: string]: string }>({});
+
+  const parseYoutubeId = (url: string) => {
+    if (!url) return "";
+    // supports youtu.be/ID, watch?v=ID, embed/ID or raw ID
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : url.trim();
+  };
+
   const currentModule = ACADEMY_CURRICULUM[activeModuleIndex];
   const currentLesson = currentModule.lessons[activeLessonIndex] || currentModule.lessons[0];
+  const currentVideoId = customYoutubeIds[currentLesson.id] || currentLesson.youtubeId;
+
+  const [customLinkError, setCustomLinkError] = useState<string | null>(null);
+
+  const handleApplyCustomLink = () => {
+    const videoId = parseYoutubeId(customYoutubeLinkInput);
+    if (videoId && videoId.length === 11) {
+      setCustomYoutubeIds((prev) => ({
+        ...prev,
+        [currentLesson.id]: videoId,
+      }));
+      setCustomYoutubeLinkInput("");
+      setCustomLinkError(null);
+    } else {
+      setCustomLinkError("⚠️ ลิงก์ไม่ถูกต้อง รหัส YouTube ต้องมีความยาว 11 อักขระครับ");
+    }
+  };
 
   // Calculate if qualified for certificate
   const isModuleQuizPassed = (modId: string) => {
@@ -317,7 +651,7 @@ export default function OnlineAcademy({ user, onChangeUser }: OnlineAcademyProps
 
     ctx.fillStyle = "#064E3B";
     ctx.font = "bold 22px 'Space Grotesk', 'Inter', sans-serif";
-    ctx.fillText("BADMINTON PRO MASTERCLASS (ทักษะจับไม้ ฟุตเวิร์ค ลูกหยอด และลูกตบความเร็วสูง)", 600, 520);
+    ctx.fillText("BADMINTON PRO MASTERCLASS (ทักษะจับไม้ ฟุตเวิร์ค ลูกหยอด ลูกตบ ลูกปั่นหน้าเน็ต และแทคติกคู่)", 600, 520);
 
     ctx.fillStyle = "#6B7280";
     ctx.font = "16px 'Inter', sans-serif";
@@ -446,13 +780,13 @@ export default function OnlineAcademy({ user, onChangeUser }: OnlineAcademyProps
               ใบรับรองจบหลักสูตร (Certificate)
             </h4>
             <p className="text-xs text-slate-300/90 leading-relaxed mb-4 font-sans">
-              เรียนครบและสอบควิซผ่าน 100% ครบทุก 3 ยูนิตเดี่ยวเพื่อออกสัมปทานบัตรเกียรติบัตรรับรองวิทยฐานะโค้ชชิ่งของคุณทันที!
+              เรียนครบและสอบควิซผ่าน 100% ครบทุก {ACADEMY_CURRICULUM.length} ยูนิตเดี่ยวเพื่อออกสัมปทานบัตรเกียรติบัตรรับรองวิทยฐานะโค้ชชิ่งของคุณทันที!
             </p>
 
             <div className="flex items-center justify-between bg-white/10 px-3.5 py-2.5 rounded-xl border border-white/10 mb-4 text-xs font-mono">
               <span>สถานะของคุณ:</span>
               <strong className={isAllModulesPassed ? "text-lime-400" : "text-amber-300 font-bold"}>
-                {isAllModulesPassed ? "🎯 พร้อมรับเกียรติบัตร" : `${user.completedQuizzes.length} / 3 ผ่านแล้ว`}
+                {isAllModulesPassed ? "🎯 พร้อมรับเกียรติบัตร" : `${user.completedQuizzes.length} / ${ACADEMY_CURRICULUM.length} ผ่านแล้ว`}
               </strong>
             </div>
 
@@ -524,10 +858,10 @@ export default function OnlineAcademy({ user, onChangeUser }: OnlineAcademyProps
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start mb-4">
             {/* The outer container has clean aspect-video scaling and no flex layout to prevent grid overlapping bugs */}
             <div className="md:col-span-8 w-full aspect-video bg-slate-950 rounded-2xl relative overflow-hidden border border-slate-200 shadow-sm">
-              {playerViewMode === "video" && currentLesson.youtubeId ? (
+              {playerViewMode === "video" && currentVideoId ? (
                 <iframe
-                  id={`youtube-iframe-${currentLesson.youtubeId}`}
-                  src={`https://www.youtube.com/embed/${currentLesson.youtubeId}?rel=0&autoplay=0`}
+                  id={`youtube-iframe-${currentVideoId}`}
+                  src={`https://www.youtube.com/embed/${currentVideoId}?rel=0&autoplay=0`}
                   title={currentLesson.titleThai}
                   className="absolute inset-0 w-full h-full border-0 rounded-2xl"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -594,13 +928,59 @@ export default function OnlineAcademy({ user, onChangeUser }: OnlineAcademyProps
             </div>
           </div>
 
+          {/* Interactive YouTube Link Override Customizer / Fixer */}
+          <div className="bg-indigo-50 border border-indigo-150 p-4 rounded-xl mb-4 text-xs shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+              <label className="font-bold text-indigo-950 flex items-center gap-1">
+                ⚙️ วิดีโอเล่นไม่ได้ หรือ ต้องการสลับวิดีโอ?
+              </label>
+              <span className="text-[10px] text-slate-400 font-mono">ID ปัจจุบัน: {currentVideoId}</span>
+            </div>
+            <p className="text-[11.5px] text-slate-500 mb-2 leading-relaxed">
+              หากเจอปัญหาวิดีโอล็อคภูมิภาค ลบออก หรือไม่ซิงค์ สามารถวางลิงก์วิดีโอ YouTube ของบทสอนนี้ที่ท่าชอบได้เลยทันที (เช่น https://youtu.be/... หรือ watch?v=...) ระบบของเราจะทำการสับเปลี่ยนให้คอร์ทเล่นสดใหม่ตลอดกาล:
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="วางลิงก์ YouTube หรือพิมพ์รหัสรหัสผ่านวิดีโอ 11 หลัก เช่น sS6A9Kj54K0..."
+                value={customYoutubeLinkInput}
+                onChange={(e) => setCustomYoutubeLinkInput(e.target.value)}
+                className="flex-1 px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-550 text-xs"
+              />
+              <button
+                onClick={handleApplyCustomLink}
+                className="bg-indigo-900 text-white font-bold px-4 py-1.5 rounded-lg hover:bg-slate-800 transition-all cursor-pointer text-xs shrink-0"
+              >
+                ปรับเปลี่ยน
+              </button>
+            </div>
+            {customLinkError && <p className="text-[10px] text-red-500 font-semibold mt-1.5">{customLinkError}</p>}
+            {customYoutubeIds[currentLesson.id] && (
+              <div className="mt-2 text-lime-800 bg-lime-50/70 border border-lime-200 py-1 px-2.5 rounded text-[11px] flex justify-between items-center">
+                <span>✓ วิดีโอบทนี้ถูกสับเปลี่ยนเป็นรหัสที่ท่านป้อนเองแล้ว</span>
+                <button
+                  onClick={() => {
+                    setCustomYoutubeIds((prev) => {
+                      const updated = { ...prev };
+                      delete updated[currentLesson.id];
+                      return updated;
+                    });
+                  }}
+                  className="underline hover:text-red-700 text-[10px] cursor-pointer"
+                >
+                  (คืนสู่ค่าเริ่มต้น)
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Fallback bar if cookies or iframe restrictions block YouTube playback */}
           <div className="flex flex-col sm:flex-row gap-3 justify-between items-center bg-amber-50/60 p-3.5 rounded-xl border border-amber-200 mb-6 shadow-sm">
             <span className="text-xs text-amber-900/90 font-medium font-sans flex items-center gap-1.5">
               <span>💡</span> หากวิดีโอไม่แสดงเนื่องจากการตั้งค่าเบราว์เซอร์หรือปลั๊กอินความปลอดภัย:
             </span>
             <a
-              href={`https://www.youtube.com/watch?v=${currentLesson.youtubeId}`}
+              href={`https://www.youtube.com/watch?v=${currentVideoId}`}
               target="_blank"
               rel="noopener noreferrer"
               className="bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 px-3.5 rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-sm hover:scale-[1.02] active:scale-95 cursor-pointer font-sans shrink-0 uppercase tracking-wide"
@@ -776,7 +1156,7 @@ export default function OnlineAcademy({ user, onChangeUser }: OnlineAcademyProps
                   <div className="w-1/2 h-0.5 bg-amber-500/60 mx-auto" />
 
                   <p className="text-xs text-slate-650 mt-4 leading-relaxed max-w-md mx-auto">
-                    ผู้ซึ่งศึกษาหลักสูตรครบถ้วนและตอบคำถามการสอบประเมินยูนิตฟุตเวิร์ค (Footwork), ลูกหยอด (Slicing Cut), และลูกตบความเร็วสูง (Powerful Smash) ครบ 3 ระดับมาตรฐานระดับอาชีพ
+                    ผู้ซึ่งศึกษาหลักสูตรครบถ้วนและตอบคำถามการสอบประเมินยูนิตฟุตเวิร์ค (Footwork), ลูกหยอด (Slicing Cut), ลูกตบความเร็วสูง (Powerful Smash), ลูกปั่นม้วนตาข่าย (Spin Net) และสมดุลคู่อย่างอัจฉริยะ ครบ {ACADEMY_CURRICULUM.length} ระดับมาตรฐานระดับอาชีพ
                   </p>
 
                   {/* Signers mockup */}
