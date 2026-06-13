@@ -1,0 +1,71 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Profile data for badminton athlete",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "avatar": { "type": "string" },
+        "tier": { "type": "string", "enum": ["Guest Participant", "Silver Club Member", "Gold Elite Champion"] },
+        "memberId": { "type": "string" },
+        "joinedDate": { "type": "string" },
+        "completedQuizzes": {
+          "type": "array"
+        },
+        "certificateUrl": { "type": "string" },
+        "balance": { "type": "number" }
+      },
+      "required": ["id", "name", "email", "tier", "memberId", "completedQuizzes", "balance"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Court and Coach Booking reservations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "courtId": { "type": "string" },
+        "courtName": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userTier": { "type": "string", "enum": ["Guest Participant", "Silver Club Member", "Gold Elite Champion"] },
+        "timeSlot": { "type": "string" },
+        "bookingType": { "type": "string", "enum": ["Practice Session", "Match Matchplay", "Guided Coaching"] },
+        "date": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "courtId", "courtName", "userId", "userName", "userTier", "timeSlot", "bookingType", "date", "createdAt"]
+    },
+    "Feedback": {
+      "title": "Feedback",
+      "description": "Athlete feedback rating and comment submitted to a coach",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "coachName": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "userName", "rating", "comment", "coachName", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Individual member profiles indexed by user authenticated ID"
+    },
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Active bookings for courts and instructors"
+    },
+    "/feedbacks/{feedbackId}": {
+      "schema": "Feedback",
+      "description": "User reviews and coaching ratings"
+    }
+  }
+}

@@ -3,15 +3,13 @@ import {
   Star, 
   MessageSquare, 
   CheckCircle, 
-  User, 
   Zap, 
   Send, 
-  Smile, 
-  FileText,
-  ThumbsUp,
-  Award
+  FileText
 } from "lucide-react";
 import { UserProfile } from "../types";
+import { db, handleFirestoreError, OperationType } from "../lib/firebase";
+import { collection, onSnapshot, setDoc, doc, query, where, orderBy } from "firebase/firestore";
 
 interface CoachingFeedbackProps {
   user: UserProfile;
@@ -20,22 +18,26 @@ interface CoachingFeedbackProps {
 
 interface FeedbackLog {
   id: string;
+  userId: string;
+  userName: string;
   coachName: string;
   rating: number;
-  comments: string;
-  date: string;
-  expEarned: number;
+  comment: string;
+  createdAt: string;
   tacticsScore: number;
   physicalScore: number;
+  expEarned: number;
 }
 
 const PRESEEDED_FEEDBACKS: FeedbackLog[] = [
   {
-    id: "fb-1-pre",
+    id: "fb-1-pre-seeded",
+    userId: "usr-prn01",
+    userName: "คุณ ปรัชญา (Prachya)",
     coachName: "โค้ช ปรัชญา (Coach Prachya)",
     rating: 5,
-    comments: "โค้ชอธิบายสเต็ป V-Shape เข้าใจง่ายมากครับ จากที่ไม่กล้าสะบัดไหล่ ตอนนี้ดีขึ้นผิดหูผิดตาเลย",
-    date: "10 มิ.ย. 2569",
+    comment: "โค้ชอธิบายสเต็ป V-Shape เข้าใจง่ายมากครับ จากที่ไม่กล้าสะบัดไหล่ ตอนนี้ดีขึ้นผิดหูผิดตาเลย",
+    createdAt: "10 มิ.ย. 2569",
     expEarned: 50,
     tacticsScore: 9,
     physicalScore: 8
@@ -49,30 +51,75 @@ export default function CoachingFeedback({ user, onChangeUser }: CoachingFeedbac
   const [tacticsScore, setTacticsScore] = useState(8);
   const [physicalScore, setPhysicalScore] = useState(8);
   
-  const [feedbackLogs, setFeedbackLogs] = useState<FeedbackLog[]>(() => {
-    const saved = localStorage.getItem("prn_badminton_feedbacks");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-         // fallback
-      }
-    }
-    return PRESEEDED_FEEDBACKS;
-  });
-
+  const [feedbackLogs, setFeedbackLogs] = useState<FeedbackLog[]>(PRESEEDED_FEEDBACKS);
   const [showAlert, setShowAlert] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Subscribing to the live feedback list in Firestore
+  useEffect(() => {
+    if (!user || !user.id) return;
+    
+    if (user.isMockLocal) {
+      const loadLocalFeedback = () => {
+        try {
+          const savedFeedback = localStorage.getItem("prn_feedback_mock");
+          const list: FeedbackLog[] = savedFeedback ? JSON.parse(savedFeedback) : PRESEEDED_FEEDBACKS;
+          setFeedbackLogs(list);
+        } catch (e) {
+          console.error("Local sandbox load failed for feedback: ", e);
+        }
+      };
+      loadLocalFeedback();
+      const handleStorageUpdate = (e: StorageEvent) => {
+        if (e.key === "prn_feedback_mock") {
+          loadLocalFeedback();
+        }
+      };
+      window.addEventListener("storage", handleStorageUpdate);
+      return () => window.removeEventListener("storage", handleStorageUpdate);
+    }
+
+    // Listen to real-time reviews
+    const unsubscribe = onSnapshot(
+      collection(db, "feedbacks"),
+      (snapshot) => {
+        const list: FeedbackLog[] = [];
+        snapshot.forEach((doc) => {
+          list.push(doc.data() as FeedbackLog);
+        });
+        
+        // Show user-specific reviews on top, filter by user.id
+        const userList = list.filter(item => item.userId === user.id);
+        
+        if (userList.length === 0) {
+          // Keep pre-seeded as fallback if empty
+          setFeedbackLogs(PRESEEDED_FEEDBACKS);
+        } else {
+          // Sort by timestamp or local id to keep correct order
+          userList.sort((a, b) => b.id.localeCompare(a.id));
+          setFeedbackLogs(userList);
+        }
+      },
+      (error) => {
+        handleFirestoreError(error, OperationType.LIST, "feedbacks");
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user?.id, user?.isMockLocal]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!comments.trim()) return;
 
+    const newLogId = `fb-log-${Date.now()}`;
     const newLog: FeedbackLog = {
-      id: `fb-log-${Date.now()}`,
+      id: newLogId,
+      userId: user.id,
+      userName: user.name,
       coachName,
       rating,
-      comments: comments.trim(),
-      date: new Date().toLocaleDateString("th-TH", {
+      comment: comments.trim(),
+      createdAt: new Date().toLocaleDateString("th-TH", {
         day: "numeric",
         month: "short",
         year: "numeric"
@@ -82,27 +129,56 @@ export default function CoachingFeedback({ user, onChangeUser }: CoachingFeedbac
       physicalScore
     };
 
-    const updatedLogs = [newLog, ...feedbackLogs];
-    setFeedbackLogs(updatedLogs);
-    localStorage.setItem("prn_badminton_feedbacks", JSON.stringify(updatedLogs));
+    try {
+      if (user.isMockLocal) {
+        const savedFeedback = localStorage.getItem("prn_feedback_mock");
+        const list: FeedbackLog[] = savedFeedback ? JSON.parse(savedFeedback) : PRESEEDED_FEEDBACKS;
+        const updatedList = [newLog, ...list];
+        localStorage.setItem("prn_feedback_mock", JSON.stringify(updatedList));
+        setFeedbackLogs(updatedList);
 
-    // Reward XP +50 to user
-    const updatedUser = {
-      ...user,
-      completedQuizzes: [...user.completedQuizzes, `feedback-${Date.now()}`] // Adding mock completed activity to earn more progress
-    };
-    onChangeUser(updatedUser);
+        // Save corresponding experience record & trigger state sync
+        const updatedUser = {
+          ...user,
+          completedQuizzes: [...user.completedQuizzes, `feedback-${Date.now()}`]
+        };
+        onChangeUser(updatedUser);
 
-    // Reset Form & Alert user
-    setComments("");
-    setRating(5);
-    setTacticsScore(8);
-    setPhysicalScore(8);
-    setShowAlert(true);
-    
-    setTimeout(() => {
-      setShowAlert(false);
-    }, 4500);
+        // Reset form variables and prompt success
+        setComments("");
+        setRating(5);
+        setTacticsScore(8);
+        setPhysicalScore(8);
+        setShowAlert(true);
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 4500);
+        return;
+      }
+
+      // Direct high-stakes transactional save to Google Firebase Firestore!
+      await setDoc(doc(db, "feedbacks", newLogId), newLog);
+
+      // Save corresponding experience record & trigger state sync
+      const updatedUser = {
+        ...user,
+        completedQuizzes: [...user.completedQuizzes, `feedback-${Date.now()}`]
+      };
+      onChangeUser(updatedUser);
+
+      // Reset form variables and prompt success
+      setComments("");
+      setRating(5);
+      setTacticsScore(8);
+      setPhysicalScore(8);
+      setShowAlert(true);
+      
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 4500);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `feedbacks/${newLogId}`);
+    }
   };
 
   return (
@@ -125,11 +201,11 @@ export default function CoachingFeedback({ user, onChangeUser }: CoachingFeedbac
           </div>
 
           {showAlert && (
-            <div className="bg-emerald-50 dark:bg-emerald-950/40 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-400 p-4 rounded-xl text-xs mb-6 flex items-center justify-between">
+            <div className="bg-emerald-50 dark:bg-emerald-950/40 border-l-4 border-emerald-500 text-emerald-800 dark:text-emerald-400 p-4 rounded-xl text-xs mb-6 flex items-center justify-between animate-fadeIn">
               <span className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
                 <span>
-                  <strong>ส่งผลตอบรับโค้ชชิ่งสำเร็จ!</strong> รับรางวัลขยันซ้อม <strong>+50 XP</strong> เรียบร้อยแล้วครับ
+                  <strong>ส่งผลตอบรับโค้ชชิ่งสำเร็จ!</strong> ข้อมูลได้รับการซิงค์บนระบบ Cloud Database <strong>+50 XP</strong> เรียบร้อยแล้วครับ
                 </span>
               </span>
             </div>
@@ -138,7 +214,7 @@ export default function CoachingFeedback({ user, onChangeUser }: CoachingFeedbac
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Select Coach */}
             <div>
-              <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-500 dark:text-slate-404 uppercase tracking-wider mb-2">
                 ผู้ฝึกสอนที่คุณเพิ่งเรียนด้วย
               </label>
               <select
@@ -256,7 +332,7 @@ export default function CoachingFeedback({ user, onChangeUser }: CoachingFeedbac
                       {log.coachName}
                     </span>
                     <span className="text-[10px] text-slate-400 block font-mono">
-                      {log.date}
+                      {log.createdAt}
                     </span>
                   </div>
                   <div className="flex items-center gap-0.5 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-200/50">
@@ -268,15 +344,15 @@ export default function CoachingFeedback({ user, onChangeUser }: CoachingFeedbac
                 </div>
 
                 <p className="text-xs text-slate-500 dark:text-slate-400 italic leading-relaxed mb-3">
-                  "{log.comments}"
+                  "{log.comment}"
                 </p>
 
                 <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200/60 dark:border-slate-851 text-[10px] text-slate-400">
                   <span className="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 px-2 py-0.5 rounded">
-                    แทคติก: {log.tacticsScore}/10
+                    แทคติก: {log.tacticsScore || 8}/10
                   </span>
                   <span className="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded">
-                    กายภาพ: {log.physicalScore}/10
+                    กายภาพ: {log.physicalScore || 8}/10
                   </span>
                   <span className="ml-auto text-emerald-500 flex items-center gap-1 font-bold">
                     <Zap className="w-3 h-3 fill-emerald-500" /> +50 XP

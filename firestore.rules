@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. Global Safety Net (Strictly Default-Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Primitives & Security Assertions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // 2. USER PROFILE DATA VALIDATION BLUEPRINT & SECURE RULES
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['id', 'name', 'email', 'tier', 'memberId', 'completedQuizzes', 'balance'])
+        && data.keys().size() <= 9
+        && data.id is string && data.id.size() <= 128
+        && data.name is string && data.name.size() <= 100
+        && data.email is string && data.email.size() <= 120
+        && data.tier is string && (data.tier == 'Guest Participant' || data.tier == 'Silver Club Member' || data.tier == 'Gold Elite Champion')
+        && data.memberId is string && data.memberId.size() <= 50
+        && data.completedQuizzes is list
+        && data.balance is number && data.balance >= 0;
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn(); // Athletes can look up other player tags to schedule matches and show scores
+      allow create: if isOwner(userId) && isValidUserProfile(incoming());
+      // Tiered Action constraints for profile modifications
+      allow update: if isOwner(userId) && isValidUserProfile(incoming()) && (
+        incoming().email == existing().email &&
+        incoming().id == existing().id &&
+        incoming().diff(existing()).affectedKeys().hasAny(['name', 'avatar', 'tier', 'completedQuizzes', 'certificateUrl', 'balance'])
+      );
+      allow delete: if false; // Block user deletion dynamically to preserve transaction logs
+    }
+
+    // 3. COURT AND COACH RESERVATION BOOKINGS Secure Rules
+    function isValidBooking(data) {
+      return data.keys().hasAll(['id', 'courtId', 'courtName', 'userId', 'userName', 'userTier', 'timeSlot', 'bookingType', 'date', 'createdAt'])
+        && data.keys().size() == 10
+        && data.id is string && data.id.size() <= 128
+        && data.courtId is string && data.courtId.size() <= 128
+        && data.courtName is string && data.courtName.size() <= 128
+        && data.userId is string && data.userId.size() <= 128
+        && data.userName is string && data.userName.size() <= 100
+        && data.userTier is string && (data.userTier == 'Guest Participant' || data.userTier == 'Silver Club Member' || data.userTier == 'Gold Elite Champion')
+        && data.timeSlot is string && data.timeSlot.size() <= 50
+        && data.bookingType is string && (data.bookingType == 'Practice Session' || data.bookingType == 'Match Matchplay' || data.bookingType == 'Guided Coaching')
+        && data.date is string && data.date.size() <= 50
+        && data.createdAt is string && data.createdAt.size() <= 100;
+    }
+
+    match /bookings/{bookingId} {
+      allow list: if isSignedIn(); // Enable listing but securely filtered
+      allow get: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(incoming().userId) && isValidBooking(incoming());
+      allow update: if false; // Immutable bookings. Changes require cancellations and re-booking.
+      allow delete: if isSignedIn() && isOwner(existing().userId);
+    }
+
+    // 4. COACHING FEEDBACKS SECURE RULES
+    function isValidFeedback(data) {
+      return data.keys().hasAll(['id', 'userId', 'userName', 'rating', 'comment', 'coachName', 'createdAt'])
+        && data.keys().size() == 7
+        && data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId.size() <= 128
+        && data.userName is string && data.userName.size() <= 100
+        && data.rating is number && data.rating >= 1 && data.rating <= 5
+        && data.comment is string && data.comment.size() <= 1000
+        && data.coachName is string && data.coachName.size() <= 100
+        && data.createdAt is string && data.createdAt.size() <= 100;
+    }
+
+    match /feedbacks/{feedbackId} {
+      allow list: if isSignedIn();
+      allow get: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(incoming().userId) && isValidFeedback(incoming());
+      allow update: if false; // Reviews are immutable to sustain score reliability
+      allow delete: if isSignedIn() && isOwner(existing().userId);
+    }
+  }
+}

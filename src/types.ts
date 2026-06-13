@@ -20,6 +20,7 @@ export interface UserProfile {
   completedQuizzes: string[]; // Quiz IDs completed
   certificateUrl?: string;
   balance: number; // For booking courts
+  isMockLocal?: boolean;
 }
 
 export interface BadmintonCourt {

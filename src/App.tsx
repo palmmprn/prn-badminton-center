@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { UserProfile, MembershipTier, Booking } from "./types";
 import CourtBooking from "./components/CourtBooking";
 import OnlineAcademy from "./components/OnlineAcademy";
@@ -16,7 +16,6 @@ import {
   Calendar,
   BookOpen,
   User,
-  Star,
   Award,
   Wallet,
   Activity,
@@ -30,14 +29,30 @@ import {
   Moon,
   Laptop,
   Check,
-  AlertTriangle,
   X,
   Camera,
-  Play,
-  TrendingUp,
   RefreshCw,
-  Award as DiplomaIcon
+  LogOut,
+  Sparkle
 } from "lucide-react";
+
+// Import Firebase config & helpers
+import { db, auth, handleFirestoreError, OperationType } from "./lib/firebase";
+import { 
+  onAuthStateChanged, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signInAnonymously, 
+  signOut 
+} from "firebase/auth";
+import { 
+  doc, 
+  getDoc, 
+  setDoc, 
+  deleteDoc, 
+  onSnapshot, 
+  collection 
+} from "firebase/firestore";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<"booking" | "academy" | "coaches" | "account" | "analytics" | "feedback">("booking");
@@ -48,13 +63,19 @@ export default function App() {
   });
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // Authentication states
+  const [authReady, setAuthReady] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+
   // Modal visibility states
   const [showQrCheckIn, setShowQrCheckIn] = useState(false);
   const [qrSubTab, setQrSubTab] = useState<"pass" | "scan">("pass");
   const [scanStatus, setScanStatus] = useState<"idle" | "scanning" | "success">("idle");
   const [scannedResult, setScannedResult] = useState("");
 
-  // Clean Audio Beep Feedback helper
+  // Sound indicator
   const playBeep = () => {
     try {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -65,17 +86,17 @@ export default function App() {
       gainNode.connect(audioCtx.destination);
 
       oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // 880 Hz
+      oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
       gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
 
       oscillator.start();
       oscillator.stop(audioCtx.currentTime + 0.12);
     } catch (e) {
-      // Benign bypass for restricted iframe sandboxes
+      // bypass sandboxed restriction warning
     }
   };
 
-  // Effect to handle system preference detection and class injections
+  // Theme support
   useEffect(() => {
     const handleThemeSync = () => {
       if (themeMode === "dark") {
@@ -113,84 +134,402 @@ export default function App() {
     }
   }, [themeMode]);
 
-  // Global Athlete state stored reactively
-  const [user, setUser] = useState<UserProfile>(() => {
-    // Attempt local storage parse or provide default
-    const saved = localStorage.getItem("prn_badminton_user");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        // Fallback
-      }
-    }
-    return {
-      id: "usr-prn01",
-      name: "คุณ ปรัชญา (Prachya)",
-      email: "prn063101@gmail.com",
-      avatar: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=150",
-      tier: MembershipTier.SILVER,
-      memberId: "PRN-7798-2026",
-      joinedDate: "12 มิ.ย. 2569",
-      completedQuizzes: [],
-      balance: 1500, // Prefunded for easy booking testing
-    };
-  });
+  // Firebase Auth State Listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (userObj) => {
+      const isMockLoggedIn = localStorage.getItem("prn_is_mock_logged_in") === "true";
 
-  // Keep track of active court & coach bookings
-  const [bookings, setBookings] = useState<Booking[]>(() => {
-    const saved = localStorage.getItem("prn_badminton_bookings");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        // Fallback
+      if (userObj) {
+        // Clear mock indicator if a real Firebase authenticated session is started
+        localStorage.removeItem("prn_is_mock_logged_in");
+        setCurrentUser(userObj);
+        
+        // Retrieve / users / {uid} document
+        const userDocRef = doc(db, "users", userObj.uid);
+        try {
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            setUser(userDocSnap.data() as UserProfile);
+          } else {
+            // First time registered - construct clean profile
+            const isAnon = userObj.isAnonymous;
+            const initialProfile: UserProfile = {
+              id: userObj.uid,
+              name: isAnon ? "คุณ ปรัชญา (Prachya)" : (userObj.displayName || "สมาชิก PRN"),
+              email: userObj.email || "prachya.demo@gmail.com",
+              avatar: userObj.photoURL || "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=150",
+              tier: isAnon ? MembershipTier.GOLD : MembershipTier.SILVER,
+              memberId: `PRN-${Math.floor(1000 + Math.random() * 9000)}-2026`,
+              joinedDate: new Date().toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" }),
+              completedQuizzes: [],
+              balance: 1500, // starting gift balance for playing with court bookings
+            };
+            await setDoc(userDocRef, initialProfile);
+            setUser(initialProfile);
+          }
+        } catch (error) {
+          handleFirestoreError(error, OperationType.GET, `users/${userObj.uid}`);
+        }
+      } else if (isMockLoggedIn) {
+        // Restoring simulated session state from local storage on refresh
+        const savedUser = localStorage.getItem("prn_user_mock");
+        if (savedUser) {
+          try {
+            const parsed = JSON.parse(savedUser) as UserProfile;
+            parsed.isMockLocal = true;
+            setCurrentUser({
+              uid: parsed.id,
+              isAnonymous: true,
+              isMockLocal: true,
+              displayName: parsed.name,
+              email: parsed.email
+            });
+            setUser(parsed);
+          } catch (e) {
+            localStorage.removeItem("prn_is_mock_logged_in");
+            setCurrentUser(null);
+            setUser(null);
+          }
+        } else {
+          localStorage.removeItem("prn_is_mock_logged_in");
+          setCurrentUser(null);
+          setUser(null);
+        }
+      } else {
+        setCurrentUser(null);
+        setUser(null);
       }
-    }
-    return [];
-  });
+      setAuthReady(true);
+    });
 
-  // State sync wrapper
-  const handleUserChange = (updated: UserProfile) => {
-    setUser(updated);
-    localStorage.setItem("prn_badminton_user", JSON.stringify(updated));
+    return () => unsubscribe();
+  }, []);
+
+  // Firebase Court Bookings Real-time Subscription
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    if (currentUser.isMockLocal) {
+      // Local sandbox emulation setup
+      const loadLocalBookings = () => {
+        try {
+          const savedBookings = localStorage.getItem("prn_bookings_mock");
+          let list: Booking[] = savedBookings ? JSON.parse(savedBookings) : [];
+          if (list.length === 0) {
+            // Preseed initial data
+            list = [
+              {
+                id: "booking-mock-1",
+                courtId: "court-1",
+                courtName: "PRN Court 1 - Premium Rubber",
+                userId: currentUser.uid,
+                userName: user?.name || "คุณ ปรัชญา (Prachya - Sandbox)",
+                userTier: user?.tier || MembershipTier.GOLD,
+                timeSlot: "19:00 - 20:00",
+                bookingType: "Practice Session",
+                date: new Date().toISOString().split("T")[0],
+                createdAt: new Date().toISOString()
+              }
+            ];
+            localStorage.setItem("prn_bookings_mock", JSON.stringify(list));
+          }
+          setBookings(list);
+        } catch (e) {
+          console.error("Local sandbox load failed: ", e);
+        }
+      };
+      loadLocalBookings();
+
+      const handleStorageUpdate = (e: StorageEvent) => {
+        if (e.key === "prn_bookings_mock") {
+          loadLocalBookings();
+        }
+      };
+      window.addEventListener("storage", handleStorageUpdate);
+      return () => window.removeEventListener("storage", handleStorageUpdate);
+    }
+    
+    const unsubscribe = onSnapshot(
+      collection(db, "bookings"),
+      (snapshot) => {
+        const list: Booking[] = [];
+        snapshot.forEach((doc) => {
+          list.push(doc.data() as Booking);
+        });
+        setBookings(list);
+      },
+      (error) => {
+        handleFirestoreError(error, OperationType.LIST, "bookings");
+      }
+    );
+
+    return () => unsubscribe();
+  }, [currentUser, user?.id]);
+
+  // Auth Action Handlers
+  const handleGoogleSignIn = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      localStorage.removeItem("prn_is_mock_logged_in");
+    } catch (err) {
+      console.error("Google authentication popup error: ", err);
+    }
   };
 
-  const handleAddBooking = (newB: Booking) => {
-    const updated = [...bookings, newB];
-    setBookings(updated);
-    localStorage.setItem("prn_badminton_bookings", JSON.stringify(updated));
+  const handleSimulatedSignIn = async () => {
+    try {
+      // Attempt genuine Firebase SDK login first
+      await signInAnonymously(auth);
+      localStorage.removeItem("prn_is_mock_logged_in");
+    } catch (err) {
+      console.warn("Firebase Anonymous Auth restricted or unavailable. Routing seamless fallback to local mock sandbox.", err);
+      
+      const mockUid = "mock-anonymous-user";
+      const initialProfile: UserProfile = {
+        id: mockUid,
+        name: "คุณ ปรัชญา (Prachya - Sandbox)",
+        email: "prachya.sandbox@gmail.com",
+        avatar: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80&w=150",
+        tier: MembershipTier.GOLD,
+        memberId: `PRN-LOCAL-2026`,
+        joinedDate: new Date().toLocaleDateString("th-TH", { day: "numeric", month: "short", year: "numeric" }),
+        completedQuizzes: [],
+        balance: 1500,
+        isMockLocal: true
+      };
+
+      const savedUser = localStorage.getItem("prn_user_mock");
+      const finalUser = savedUser ? { ...JSON.parse(savedUser), isMockLocal: true } : initialProfile;
+
+      localStorage.setItem("prn_user_mock", JSON.stringify(finalUser));
+      localStorage.setItem("prn_is_mock_logged_in", "true");
+
+      setCurrentUser({
+        uid: finalUser.id,
+        isAnonymous: true,
+        isMockLocal: true,
+        displayName: finalUser.name,
+        email: finalUser.email
+      });
+      setUser(finalUser);
+    }
   };
 
-  const handleRemoveBooking = (bkId: string) => {
-    const cancelledBooking = bookings.find((b) => b.id === bkId);
-    if (cancelledBooking) {
+  const handleSignOut = async () => {
+    try {
+      localStorage.removeItem("prn_is_mock_logged_in");
+      await signOut(auth);
+      setUser(null);
+      setCurrentUser(null);
+    } catch (err) {
+      console.error("Sign out error: ", err);
+    }
+  };
+
+  // State sync modifiers proxied onto Firestore
+  const handleUserChange = async (updated: UserProfile) => {
+    if (!currentUser) return;
+    try {
+      setUser(updated);
+      if (currentUser.isMockLocal) {
+        localStorage.setItem("prn_user_mock", JSON.stringify(updated));
+        return;
+      }
+      await setDoc(doc(db, "users", currentUser.uid), updated);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, `users/${currentUser.uid}`);
+    }
+  };
+
+  const handleAddBooking = async (newB: Booking) => {
+    if (!currentUser || !user) return;
+    try {
+      if (currentUser.isMockLocal) {
+        const savedBookings = localStorage.getItem("prn_bookings_mock");
+        const list: Booking[] = savedBookings ? JSON.parse(savedBookings) : [];
+        const updatedList = [...list, newB];
+        localStorage.setItem("prn_bookings_mock", JSON.stringify(updatedList));
+        setBookings(updatedList);
+
+        const chargeAmount = newB.bookingType === "Guided Coaching" ? 405 : 300;
+        const updatedUser = {
+          ...user,
+          balance: Math.max(0, user.balance - chargeAmount),
+        };
+        await handleUserChange(updatedUser);
+        return;
+      }
+
+      // Save reservation onto cloud
+      await setDoc(doc(db, "bookings", newB.id), newB);
+
+      // Charge athlete account balance
+      const chargeAmount = newB.bookingType === "Guided Coaching" ? 405 : 300;
+      const updatedUser = {
+        ...user,
+        balance: Math.max(0, user.balance - chargeAmount),
+      };
+      await handleUserChange(updatedUser);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `bookings/${newB.id}`);
+    }
+  };
+
+  const handleRemoveBooking = async (bkId: string) => {
+    if (!currentUser || !user) return;
+    try {
+      const targetB = bookings.find((b) => b.id === bkId);
+      if (!targetB) return;
+
+      if (currentUser.isMockLocal) {
+        const savedBookings = localStorage.getItem("prn_bookings_mock");
+        let list: Booking[] = savedBookings ? JSON.parse(savedBookings) : [];
+        list = list.filter((b) => b.id !== bkId);
+        localStorage.setItem("prn_bookings_mock", JSON.stringify(list));
+        setBookings(list);
+      } else {
+        // Delete from cloud
+        await deleteDoc(doc(db, "bookings", bkId));
+      }
+
+      // Append cancellation history log locally
       try {
         const savedHistory = localStorage.getItem("prn_badminton_cancelled_history");
         const cancelledList = savedHistory ? JSON.parse(savedHistory) : [];
         cancelledList.push({
           id: `cancelled-${bkId}-${Date.now()}`,
-          courtName: cancelledBooking.courtName,
-          timeSlot: cancelledBooking.timeSlot,
-          bookingType: cancelledBooking.bookingType,
-          date: cancelledBooking.date,
-          cost: cancelledBooking.bookingType === "Guided Coaching" ? 405 : 300,
+          courtName: targetB.courtName,
+          timeSlot: targetB.timeSlot,
+          bookingType: targetB.bookingType,
+          date: targetB.date,
+          cost: targetB.bookingType === "Guided Coaching" ? 405 : 300,
           status: "Cancelled"
         });
         localStorage.setItem("prn_badminton_cancelled_history", JSON.stringify(cancelledList));
       } catch (e) {
-        console.error("Failed to save cancelled booking history log", e);
+        // backup
       }
-    }
 
-    const updated = bookings.filter((b) => b.id !== bkId);
-    setBookings(updated);
-    localStorage.setItem("prn_badminton_bookings", JSON.stringify(updated));
+      // Refund details onto user balance
+      const refundRate = targetB.bookingType === "Guided Coaching" ? 405 : 300;
+      const updatedUser = {
+        ...user,
+        balance: user.balance + refundRate,
+      };
+      await handleUserChange(updatedUser);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `bookings/${bkId}`);
+    }
   };
 
-  // Quick stats computed
-  const userBookings = bookings.filter((b) => b.userId === user.id);
-  const xpPoints = user.completedQuizzes.length * 100 + userBookings.length * 50;
+  // Computed stats derived reactively from synchronized Firestore datasets
+  const userBookings = bookings.filter((b) => user && b.userId === user.id);
+  const xpPoints = user ? (user.completedQuizzes.length * 100 + userBookings.length * 50) : 0;
+
+  // Render Loader if Auth state resolving
+  if (!authReady) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center font-sans text-white p-6">
+        <div className="relative mb-5 flex items-center justify-center">
+          <RefreshCw className="w-12 h-12 text-lime-400 animate-spin" />
+          <Sparkle className="absolute w-5 h-5 text-emerald-400 animate-ping" />
+        </div>
+        <h4 className="text-sm font-semibold tracking-wider text-slate-300">
+          กำลังปลุกประตู IoT Gateway สู่ระบบคอร์ทหลัก...
+        </h4>
+        <p className="text-xs text-slate-500 mt-1 font-mono">
+          Connecting secure cloud resources
+        </p>
+      </div>
+    );
+  }
+
+  // Render Premium Login Screen if not authenticated
+  if (!currentUser || !user) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 selection:bg-lime-400 selection:text-indigo-950 font-sans relative overflow-hidden">
+        {/* Decorative court net background */}
+        <div className="absolute inset-x-0 top-1/2 h-0.5 bg-gradient-to-r from-transparent via-white/10 to-transparent dashed opacity-40" />
+        <div className="absolute left-[15%] top-0 bottom-0 w-[0.5px] bg-white/5" />
+        <div className="absolute right-[15%] top-0 bottom-0 w-[0.5px] bg-white/5" />
+
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full shadow-2xl relative z-10"
+        >
+          {/* Badminton brand badge */}
+          <div className="flex flex-col items-center text-center">
+            <div className="w-16 h-16 bg-lime-400 rounded-2xl flex items-center justify-center shadow-lg shadow-lime-400/20 mb-4 transform hover:rotate-6 transition-transform">
+              <span className="text-2xl font-extrabold text-indigo-955 italic">PRN</span>
+            </div>
+            
+            <span className="text-[10px] font-bold text-lime-400 uppercase tracking-[0.2em] mb-1">
+              Arena & Online Academy
+            </span>
+            <h2 className="text-xl font-bold font-display text-white pr-2">
+              ยินดีต้อนรับสู่ระบบสมาชิก PRN
+            </h2>
+            <p className="text-xs text-slate-400 max-w-[260px] mx-auto mt-2 leading-relaxed">
+              สแกนจองคิวสนามอัจฉริยะ, เลือกจองตารางฝึกโค้ช หรือเรียนออนไลน์เพื่อรับใบเกียรติบัตรรับรองระดับสโมสร
+            </p>
+          </div>
+
+          <div className="space-y-4 mt-8">
+            {/* Secure Google authentication button (Real Auth) */}
+            <button
+              id="auth-google-signin-btn"
+              onClick={handleGoogleSignIn}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-100 text-slate-900 rounded-xl font-bold text-xs shadow transition-all hover:scale-[1.01] active:scale-95 cursor-pointer"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path
+                  fill="#EA4335"
+                  d="M12 5.04c1.62 0 3.08.56 4.22 1.65l3.15-3.15C17.45 1.84 14.94 1 12 1 7.24 1 3.23 3.73 1.34 7.72l3.72 2.88C5.93 7.39 8.71 5.04 12 5.04z"
+                />
+                <path
+                  fill="#4285F4"
+                  d="M23.49 12.27c0-.81-.07-1.6-.2-2.36H12v4.51h6.44c-.28 1.46-1.1 2.69-2.33 3.51l3.63 2.81c2.12-1.95 3.35-4.83 3.35-8.48z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.06 14.51c-.24-.72-.38-1.49-.38-2.3c0-.81.14-1.58.38-2.3L1.34 7.03C.48 8.8.01 10.79.01 12.91s.47 4.11 1.33 5.88l3.72-2.88z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c3.24 0 5.95-1.07 7.94-2.91l-3.63-2.81c-1.12.75-2.55 1.2-4.31 1.2-3.29 0-6.07-2.35-7.07-5.56l-3.72 2.88C3.23 20.27 7.24 23 12 23z"
+                />
+              </svg>
+              ลงชื่อเข้าใช้ด้วยบัญชี Google
+            </button>
+
+            <div className="relative flex py-2 items-center">
+              <div className="flex-grow border-t border-slate-800"></div>
+              <span className="flex-shrink mx-3 text-[10px] text-slate-500 uppercase tracking-widest font-bold">
+                หรือใช้งานบัญชีทดสอบ
+              </span>
+              <div className="flex-grow border-t border-slate-800"></div>
+            </div>
+
+            {/* Instant anonymous sandbox testing button (Fast Auth simulation) */}
+            <button
+              id="auth-simulate-signin-btn"
+              onClick={handleSimulatedSignIn}
+              className="w-full flex items-center justify-center gap-1.5 px-4 py-3 bg-slate-800 hover:bg-slate-750 text-lime-400 hover:text-lime-300 rounded-xl font-bold text-xs transition-all hover:scale-[1.01] active:scale-95 cursor-pointer border border-lime-400/25"
+            >
+              <Zap className="w-4 h-4 animate-pulse text-lime-400" />
+              <span>เข้าสู่แผงเดโม (Instant Sandbox Account)</span>
+            </button>
+          </div>
+
+          <p className="text-[10px] text-slate-500 text-center mt-6 leading-relaxed">
+            * สมาชิกทดสอบจะได้รับการเติมเครดิตสนามฟรี <strong>฿1,500</strong> เสมือนประชากรภายในย่าน กรุงเทพฯ ฝั่งธนบุรี โดยอัตโนมัติ เพื่อสัมผัสการจองสโมสรได้เต็มรูปแบบ
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div id="prn-badminton-app" className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans flex flex-col justify-between transition-colors duration-300">
@@ -205,7 +544,7 @@ export default function App() {
             {/* BRAND LOGO with Lime accents */}
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 bg-lime-400 rounded-lg flex items-center justify-center shadow-md">
-                <span className="text-xl font-display font-extrabold text-indigo-950 italic">PRN</span>
+                <span className="text-xl font-display font-extrabold text-indigo-955 italic">PRN</span>
               </div>
               <div>
                 <span className="text-[10px] font-bold tracking-widest text-lime-400 font-display block uppercase">
@@ -285,11 +624,21 @@ export default function App() {
               {/* Wallet credits balance */}
               <div
                 onClick={() => setActiveTab("account")}
-                className="flex items-center gap-2 px-3 py-1.5 bg-lime-400 text-indigo-950 hover:bg-lime-500 rounded-xl cursor-pointer text-xs font-bold font-mono transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 bg-lime-400 text-indigo-955 hover:bg-lime-500 rounded-xl cursor-pointer text-xs font-bold font-mono transition-colors"
               >
                 <Wallet className="w-4 h-4" />
                 <span>฿{user.balance.toLocaleString("th-TH")}</span>
               </div>
+
+              {/* Google Log out action button */}
+              <button
+                id="header-signout-btn"
+                onClick={handleSignOut}
+                className="flex items-center justify-center p-1.5 rounded-xl bg-red-650 hover:bg-red-700 text-white cursor-pointer transition-colors"
+                title="ออกจากระบบข้อมูลสโมสร"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
@@ -388,6 +737,25 @@ export default function App() {
 
       {/* 3. CORE SUB-DASHBOARD VIEWS CONTAINER */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        {/* Real-time sync success banner */}
+        {currentUser?.isMockLocal ? (
+          <div className="bg-amber-50/60 dark:bg-amber-950/20 border border-amber-250 dark:border-amber-900/50 p-3 rounded-2xl text-xs font-semibold text-amber-950 dark:text-amber-300 flex items-center justify-between gap-2 mb-6 shadow-sm">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <span>โหมดเดโมจำลอง (Sandbox Local Storage) ทำงานลื่นไหล 100%! สัมผัสฟังก์ชันจองสนาม เรียนออนไลน์ และบันทึกประวัติร่วมกับการจำลองคิวสนามโดยไม่ต้องลงทะเบียน</span>
+            </span>
+            <span className="bg-amber-400 text-indigo-955 px-2.5 py-0.5 rounded-md font-mono text-[10px] uppercase font-bold tracking-wider">Local Sandbox</span>
+          </div>
+        ) : (
+          <div className="bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-250 dark:border-indigo-900/50 p-3 rounded-2xl text-xs font-semibold text-indigo-950 dark:text-indigo-300 flex items-center justify-between gap-2 mb-6 shadow-sm">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              <span>เชื่อมต่อกับฐานข้อมูลเรียลไทม์ <strong>Google Firebase Firestore</strong> สำเร็จ! ข้อมูลสมาชิกและการจองสนามทั้งหมดจะได้รับการบันทึกถาวร</span>
+            </span>
+            <span className="bg-lime-400 text-indigo-955 px-2.5 py-0.5 rounded-md font-mono text-[10px] uppercase font-bold tracking-wider">Cloud Live</span>
+          </div>
+        )}
+
         <motion.div
           key={activeTab}
           initial={{ opacity: 0, y: 8 }}
@@ -586,7 +954,7 @@ export default function App() {
                         onClick={() => {
                           playBeep();
                           setScanStatus("success");
-                          // Award XP
+                          // Award XP dynamically through Firestore sync wrapper
                           const updatedUser = {
                             ...user,
                             completedQuizzes: [...user.completedQuizzes, `scan-pass-${Date.now()}`]
@@ -645,7 +1013,6 @@ export default function App() {
                                 playBeep();
                                 setScanStatus("success");
                                 setScannedResult("เช็คอินสำเร็จที่สนามคอร์ทที่ 1 เรียบร้อยแล้ว! ข้อมูลคิวของท่านได้รับรายงานสู่ IoT Dashboard คลับหลัก เรียบร้อย");
-                                // Reward XP
                                 const updatedUser = {
                                   ...user,
                                   completedQuizzes: [...user.completedQuizzes, `scan-court-1-${Date.now()}`]
@@ -666,7 +1033,6 @@ export default function App() {
                                 playBeep();
                                 setScanStatus("success");
                                 setScannedResult("เช็คอินสำเร็จที่สนามคอร์ทที่ 2 เรียบร้อยแล้ว! ข้อมูลคิวของท่านได้รับรายงานสู่ IoT Dashboard คลับหลัก เรียบร้อย");
-                                // Reward XP
                                 const updatedUser = {
                                   ...user,
                                   completedQuizzes: [...user.completedQuizzes, `scan-court-2-${Date.now()}`]
@@ -702,7 +1068,7 @@ export default function App() {
                         <h5 className="text-sm font-bold text-slate-800 dark:text-slate-100">
                           แสกนและถอดข้อมูลสำเร็จ!
                         </h5>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 px-4 mt-2 leading-relaxed">
+                        <p className="text-xs text-slate-500 dark:text-slate-404 px-4 mt-2 leading-relaxed">
                           {scannedResult}
                         </p>
                         <span className="inline-block mt-4 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950 px-3 py-1 rounded">
@@ -731,4 +1097,3 @@ export default function App() {
     </div>
   );
 }
-
