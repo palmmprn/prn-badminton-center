@@ -527,7 +527,6 @@ export default function OnlineAcademy({ user, onChangeUser }: OnlineAcademyProps
                   id={`youtube-iframe-${currentLesson.youtubeId}`}
                   src={`https://www.youtube.com/embed/${currentLesson.youtubeId}?rel=0&autoplay=0&hl=th&cc_load_policy=1`}
                   title={currentLesson.titleThai}
-                  referrerPolicy="no-referrer"
                   className="absolute inset-0 w-full h-full border-0 rounded-2xl"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen

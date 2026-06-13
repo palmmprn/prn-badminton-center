@@ -398,7 +398,7 @@ export default function MembershipCard({ user, onChangeUser, activeBookingsCount
       </div>
 
       {/* --- BOOKING HISTORY SECTION (Highly Polished & High-Contrast) --- */}
-      <div id="booking-history-container" className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+      <div id="booking-history-container" className="lg:col-span-12 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-slate-200">
           <div>
             <h3 className="text-lg font-display font-bold text-slate-800 flex items-center gap-2">
